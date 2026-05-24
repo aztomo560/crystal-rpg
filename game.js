@@ -243,10 +243,16 @@ const state = {
 const audio = {
   enabled: false,
   context: null,
+  filePlayer: null,
+  fileTheme: "",
   timer: null,
   step: 0,
   theme: "",
   nextNoteTime: 0
+};
+
+const AUDIO_TRACKS = {
+  village: "assets/bgm/village.m4a"
 };
 
 const NOTE_FREQ = {
@@ -871,27 +877,20 @@ function toggleSound() {
 }
 
 function startAudio() {
-  if (!audio.context) {
+  if (!audio.context && typeof window.AudioContext !== "undefined" || !audio.context && typeof window.webkitAudioContext !== "undefined") {
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContextClass) {
-      audio.enabled = false;
-      setMessage("このブラウザでは音楽機能が使えません。");
-      return;
-    }
     audio.context = new AudioContextClass();
   }
 
-  if (audio.context.state === "suspended") {
+  if (audio.context && audio.context.state === "suspended") {
     audio.context.resume();
   }
   updateMusicTheme(true);
 }
 
 function stopAudio() {
-  if (audio.timer) {
-    clearInterval(audio.timer);
-    audio.timer = null;
-  }
+  stopSynthMusic();
+  stopFileMusic();
 }
 
 function currentThemeName() {
@@ -902,16 +901,67 @@ function currentThemeName() {
 }
 
 function updateMusicTheme(force = false) {
-  if (!audio.enabled || !audio.context) return;
+  if (!audio.enabled) return;
   const nextTheme = currentThemeName();
+  const fileSrc = AUDIO_TRACKS[nextTheme];
+
+  if (fileSrc) {
+    stopSynthMusic();
+    playFileMusic(nextTheme, fileSrc, force);
+    return;
+  }
+
+  stopFileMusic();
+  if (!audio.context) {
+    setMessage("このブラウザでは内蔵BGM機能が使えません。");
+    audio.enabled = false;
+    document.getElementById("btnSound").textContent = "音楽 ON";
+    return;
+  }
+
   if (!force && audio.theme === nextTheme && audio.timer) return;
 
-  stopAudio();
+  stopSynthMusic();
   audio.theme = nextTheme;
   audio.step = 0;
   audio.nextNoteTime = audio.context.currentTime + 0.05;
   audio.timer = setInterval(scheduleMusic, 70);
   scheduleMusic();
+}
+
+function stopSynthMusic() {
+  if (audio.timer) {
+    clearInterval(audio.timer);
+    audio.timer = null;
+  }
+}
+
+function playFileMusic(theme, src, force = false) {
+  if (!force && audio.fileTheme === theme && audio.filePlayer && !audio.filePlayer.paused) return;
+
+  stopFileMusic();
+  audio.theme = theme;
+  audio.fileTheme = theme;
+
+  if (typeof Audio === "undefined") return;
+  audio.filePlayer = new Audio(src);
+  audio.filePlayer.loop = true;
+  audio.filePlayer.volume = 0.65;
+
+  const playResult = audio.filePlayer.play();
+  if (playResult && typeof playResult.catch === "function") {
+    playResult.catch(() => {
+      setMessage("音楽を再生できませんでした。音楽ONをもう一度押してください。");
+    });
+  }
+}
+
+function stopFileMusic() {
+  if (!audio.filePlayer) return;
+  audio.filePlayer.pause();
+  audio.filePlayer.currentTime = 0;
+  audio.filePlayer = null;
+  audio.fileTheme = "";
 }
 
 function scheduleMusic() {
