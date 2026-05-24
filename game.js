@@ -1024,5 +1024,21 @@ document.getElementById("btnSave").addEventListener("click", saveGame);
 document.getElementById("btnLoad").addEventListener("click", loadGame);
 document.getElementById("btnNew").addEventListener("click", newGame);
 
+document.querySelectorAll("[data-move]").forEach((button) => {
+  const move = () => {
+    const direction = button.dataset.move;
+    if (direction === "up") movePlayer(0, -1);
+    if (direction === "down") movePlayer(0, 1);
+    if (direction === "left") movePlayer(-1, 0);
+    if (direction === "right") movePlayer(1, 0);
+  };
+
+  button.addEventListener("click", move);
+  button.addEventListener("touchstart", (event) => {
+    event.preventDefault();
+    move();
+  }, { passive: false });
+});
+
 render();
 
