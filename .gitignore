@@ -1,0 +1,13 @@
+# OS / editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+
+# Dependency folders, in case tools are added later
+node_modules/
+

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>小さなクリスタルRPG</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="game-shell">
+    <section class="screen" aria-label="ゲーム画面">
+      <div class="top-bar">
+        <div>
+          <span class="brand">CRYSTAL QUEST</span>
+          <span id="areaName" class="area-name">村</span>
+        </div>
+        <div class="save-state" id="saveState">未セーブ</div>
+      </div>
+
+      <div id="map" class="map" aria-label="マップ"></div>
+
+      <div class="status-panel">
+        <div>LV <span id="lv">1</span></div>
+        <div>HP <span id="hp">30</span>/<span id="maxHp">30</span></div>
+        <div>EXP <span id="exp">0</span></div>
+        <div>G <span id="gold">20</span></div>
+      </div>
+
+      <div id="message" class="message">ようこそ。矢印キーで移動、Enterで調べる。</div>
+    </section>
+
+    <aside class="command-panel" aria-label="コマンド">
+      <button id="btnTalk">調べる</button>
+      <button id="btnMenu">メニュー</button>
+      <button id="btnSound">音楽 ON</button>
+      <button id="btnSave">セーブ</button>
+      <button id="btnLoad">ロード</button>
+      <button id="btnNew">最初から</button>
+
+      <div class="help">
+        <p>移動: 矢印 / WASD</p>
+        <p>決定: Enter / Space</p>
+        <p>メニュー: M</p>
+      </div>
+    </aside>
+  </main>
+
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-window">
+      <div id="modalTitle" class="modal-title">メニュー</div>
+      <div id="modalBody" class="modal-body"></div>
+      <div id="modalActions" class="modal-actions"></div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
