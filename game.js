@@ -25,10 +25,10 @@ const TILE = {
   "F": { name: "森", className: "forest", mark: "森" },
   "K": { name: "城", className: "castle", mark: "城" },
   "B": { name: "魔王", className: "boss", mark: "魔" },
-  "S": { name: "武器屋", className: "shop", mark: "武" },
-  "I": { name: "宿屋", className: "inn", mark: "宿" },
-  "T": { name: "道具屋", className: "shop", mark: "道" },
-  "N": { name: "村人", className: "npc", mark: "人" },
+  "S": { name: "武器屋", className: "shop", mark: "" },
+  "I": { name: "宿屋", className: "inn", mark: "" },
+  "T": { name: "道具屋", className: "shop", mark: "" },
+  "N": { name: "村人", className: "grass", mark: "" },
   "C": { name: "宝箱", className: "chest", mark: "箱" },
   "E": { name: "出口", className: "exit", mark: "出" }
 };
@@ -228,6 +228,10 @@ const state = {
     weapons: ["stick"],
     armors: ["cloth"]
   },
+  npcs: [
+    { id: "village-elder", mapId: "village", x: 5, y: 1 },
+    { id: "forest-guide", mapId: "forestVillage", x: 5, y: 1 }
+  ],
   flags: {
     openedDungeonChest: false,
     foundCrest: false,
@@ -341,6 +345,18 @@ function charAt(x, y) {
   return row[x] || "w";
 }
 
+function npcAt(x, y, mapId = state.mapId) {
+  return state.npcs.find((npc) => npc.mapId === mapId && npc.x === x && npc.y === y);
+}
+
+function nearbyNpc() {
+  return state.npcs.find((npc) => {
+    if (npc.mapId !== state.mapId) return false;
+    const distance = Math.abs(npc.x - state.player.x) + Math.abs(npc.y - state.player.y);
+    return distance <= 1;
+  });
+}
+
 function setMessage(text) {
   state.message = text;
   els.message.textContent = text;
@@ -374,9 +390,14 @@ function render() {
   for (let y = 0; y < MAP_H; y++) {
     for (let x = 0; x < MAP_W; x++) {
       const tile = tileAt(x, y);
+      const ch = charAt(x, y);
       const cell = document.createElement("div");
-      cell.className = `tile ${tile.className}`;
+      cell.className = `tile ${tile.className} symbol-${ch}`;
       cell.textContent = tile.mark;
+      if (npcAt(x, y)) {
+        cell.className = "tile npc npc-walker";
+        cell.textContent = "";
+      }
       if (state.player.x === x && state.player.y === y) {
         cell.classList.add("player");
       }
@@ -387,6 +408,7 @@ function render() {
 
 function canMoveTo(x, y) {
   if (x < 0 || x >= MAP_W || y < 0 || y >= MAP_H) return false;
+  if (npcAt(x, y)) return false;
   return !tileAt(x, y).block;
 }
 
@@ -448,6 +470,13 @@ function maybeEncounter() {
 
 function inspectTile() {
   if (state.mode !== "map") return;
+  const npc = nearbyNpc();
+  if (npc) {
+    talkToNpc(npc);
+    render();
+    return;
+  }
+
   const ch = charAt(state.player.x, state.player.y);
   if (ch === "N") {
     talkToNpc();
@@ -863,6 +892,40 @@ function rand(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+function moveNpcs() {
+  if (state.mode !== "map") return;
+  if (!els.modal.classList.contains("hidden")) return;
+
+  const directions = [
+    { x: 0, y: -1 },
+    { x: 0, y: 1 },
+    { x: -1, y: 0 },
+    { x: 1, y: 0 },
+    { x: 0, y: 0 }
+  ];
+
+  state.npcs.forEach((npc) => {
+    if (npc.mapId !== state.mapId) return;
+    const direction = directions[rand(0, directions.length - 1)];
+    const nx = npc.x + direction.x;
+    const ny = npc.y + direction.y;
+    if (canNpcMoveTo(npc, nx, ny)) {
+      npc.x = nx;
+      npc.y = ny;
+    }
+  });
+
+  render();
+}
+
+function canNpcMoveTo(npc, x, y) {
+  if (x < 0 || x >= MAP_W || y < 0 || y >= MAP_H) return false;
+  if (state.player.x === x && state.player.y === y) return false;
+  if (state.npcs.some((other) => other !== npc && other.mapId === npc.mapId && other.x === x && other.y === y)) return false;
+  const ch = charAt(x, y);
+  return ch === "." || ch === "N";
+}
+
 function toggleSound() {
   audio.enabled = !audio.enabled;
   document.getElementById("btnSound").textContent = audio.enabled ? "音楽 OFF" : "音楽 ON";
@@ -1090,6 +1153,8 @@ document.querySelectorAll("[data-move]").forEach((button) => {
     move();
   }, { passive: false });
 });
+
+setInterval(moveNpcs, 1200);
 
 render();
 
