@@ -112,17 +112,14 @@ button:focus {
 .player::before {
   content: "";
   position: absolute;
-  width: 52%;
-  height: 72%;
-  background:
-    linear-gradient(#2f5cff 0 18%, transparent 18%),
-    linear-gradient(90deg, transparent 0 23%, #ffd69b 23% 77%, transparent 77%),
-    linear-gradient(90deg, transparent 0 15%, #f8f3d4 15% 34%, #d23b3b 34% 66%, #f8f3d4 66% 85%, transparent 85%),
-    linear-gradient(90deg, transparent 0 24%, #24307a 24% 43%, transparent 43% 57%, #24307a 57% 76%, transparent 76%);
-  background-size: 100% 24%, 100% 28%, 100% 34%, 100% 26%;
-  background-position: 0 0, 0 23%, 0 50%, 0 88%;
-  background-repeat: no-repeat;
+  left: 50%;
+  top: 50%;
+  width: 88%;
+  height: 96%;
+  background: url("assets/characters/hero.png") center / contain no-repeat;
   filter: drop-shadow(2px 2px 0 #101018);
+  image-rendering: pixelated;
+  transform: translate(-50%, -50%);
 }
 
 .battle-scene {
@@ -154,14 +151,7 @@ button:focus {
 }
 
 .hero-sprite {
-  background:
-    linear-gradient(#2f5cff 0 20%, transparent 20%),
-    linear-gradient(90deg, transparent 0 22%, #ffd69b 22% 78%, transparent 78%),
-    linear-gradient(90deg, transparent 0 12%, #f8f3d4 12% 34%, #d23b3b 34% 66%, #f8f3d4 66% 88%, transparent 88%),
-    linear-gradient(90deg, transparent 0 24%, #24307a 24% 43%, transparent 43% 57%, #24307a 57% 76%, transparent 76%);
-  background-size: 100% 22%, 100% 25%, 100% 32%, 100% 28%;
-  background-position: 0 0, 0 24%, 0 52%, 0 88%;
-  background-repeat: no-repeat;
+  background: url("assets/characters/hero.png") center / contain no-repeat;
   filter: drop-shadow(4px 4px 0 #101018);
 }
 
