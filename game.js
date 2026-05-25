@@ -253,7 +253,7 @@ const audio = {
 
 const AUDIO_TRACKS = {
   village: "assets/bgm/village.m4a",
-  battle: "assets/bgm/battle.mp3"
+  battle: "assets/bgm/battle.m4a"
 };
 
 const NOTE_FREQ = {
